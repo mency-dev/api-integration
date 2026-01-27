@@ -6,19 +6,14 @@ export default function Todos() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedTodos = localStorage.getItem("todos");
-
-    if (storedTodos) {
-      
-      setTodos(JSON.parse(storedTodos));
-    } else {
+    
       fetch("https://jsonplaceholder.typicode.com/todos")
         .then((res) => res.json())
         .then((data) => {
           setTodos(data);
           localStorage.setItem("todos", JSON.stringify(data));
         });
-    }
+    
   }, []);
 
 
