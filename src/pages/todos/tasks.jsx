@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function Tasks() {
-  const { id } = useParams(); // get the todo id from URL
+  const { id } = useParams(); 
   const [todo, setTodo] = useState(null);
-  const [editing, setEditing] = useState(false); // toggle edit mode
+  const [editing, setEditing] = useState(false); 
   const [title, setTitle] = useState("");
   const [completed, setCompleted] = useState(false);
 
   const navigate = useNavigate();
 
-  // Fetch the todo from local data.json
   useEffect(() => {
     fetch("/data.json")
       .then((res) => res.json())
@@ -27,21 +26,33 @@ export default function Tasks() {
 
   if (!todo) return <p>Loading...</p>;
 
-  // Handle save (local state update for now)
+  
   const handleSave = () => {
-    const updatedTodo = {
-      ...todo,
-      title,
-      completed,
-    };
-
-    // In real API, here you would do PUT request
-    // Example: fetch(`/todos/${id}`, { method: 'PUT', body: JSON.stringify(updatedTodo), headers: { 'Content-Type': 'application/json' } })
-
-    setTodo(updatedTodo); // update state locally
-    setEditing(false); // exit edit mode
-    alert("Todo updated locally! (mock PUT)");
+    fetch(`https://jsonplaceholder.typicode.com/todos/${id}`,{
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        title,completed
+      })
+    })
+    .then((res) => res.json())
+    .then((data) => {
+      setTodo(data);
+      setEditing(false);
+    });
   };
+  function handleDelete() {
+    fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setTodo(data);
+        navigate(-1);
+      });
+  }
 
   return (
     <div>
@@ -79,6 +90,7 @@ export default function Tasks() {
             <strong>Completed:</strong> {todo.completed ? "Yes" : "No"}
           </p>
           <button onClick={() => setEditing(true)}>Edit</button>
+          <button onClick={() => handleDelete()}>Delete</button>
           <button onClick={() => navigate(-1)}>Back</button>
         </div>
       )}

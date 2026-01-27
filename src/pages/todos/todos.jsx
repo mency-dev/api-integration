@@ -6,17 +6,29 @@ export default function Todos() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("/data.json")
-      .then((res) => res.json())
-      .then((data) => setTodos(data));
+    const storedTodos = localStorage.getItem("todos");
+
+    if (storedTodos) {
+      
+      setTodos(JSON.parse(storedTodos));
+    } else {
+      fetch("https://jsonplaceholder.typicode.com/todos")
+        .then((res) => res.json())
+        .then((data) => {
+          setTodos(data);
+          localStorage.setItem("todos", JSON.stringify(data));
+        });
+    }
   }, []);
 
+
   function handleClick(id) {
-    navigate(`/todo/${id}`); // navigate to details page
+    navigate(`/todo/${id}`);
   }
 
   return (
     <div>
+      
       <h1>Todos</h1>
       <ul>
         {todos.map((todo) => (
@@ -25,7 +37,6 @@ export default function Todos() {
             style={{ cursor: "pointer" }}
             onClick={() => handleClick(todo.id)}
           >
-            <input type="checkbox" checked={todo.completed} disabled />
             <span>{todo.title}</span>
           </li>
         ))}
