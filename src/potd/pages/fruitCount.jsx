@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function FruitCount() {
-  const [fruits, setFruits] = useState([]);
+  const [fruits, setFruits] = useState({});
 function addFruit(name){
     setFruits(prev=>({
         ...prev,[name]:(prev[name] || 0)+1
@@ -17,7 +17,7 @@ function addFruit(name){
       <button onClick={() => addFruit("Orange")}>Orange</button>
       </div>
       <div>
-        {fruits.map(([fruits,count])=>(
+        {Object.entries(fruits).map(([fruits,count])=>(
             <div key={fruits}>
                 {fruits}:{count}
 

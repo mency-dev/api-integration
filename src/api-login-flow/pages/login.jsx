@@ -1,11 +1,13 @@
 import { useForm } from "react-hook-form";
 import { apiFetch } from "../api/api";
 import { useEffect, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const { register, handleSubmit, getValues,reset } = useForm();
   const [otpField, setOtpField] = useState(false);
   const [otpSent,setOtpSent] = useState(false);
+  const navigate =useNavigate();
   function onSubmit(data) {
     const {phoneNumber,otp} =data;
     apiFetch("auth/otp/verify",{
@@ -25,6 +27,7 @@ export default function Login() {
         if(data.message==="Suceesfully Verified"){
             localStorage.setItem("token",data.token)
             alert("login Successful")
+            navigate("/")
             reset({phoneNumber:"",
                 otp:""
             })
