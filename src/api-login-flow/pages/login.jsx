@@ -27,7 +27,7 @@ export default function Login() {
         if(data.message==="Suceesfully Verified"){
             localStorage.setItem("token",data.token)
             alert("login Successful")
-            navigate("/")
+            navigate("/home/homePage")
             reset({phoneNumber:"",
                 otp:""
             })

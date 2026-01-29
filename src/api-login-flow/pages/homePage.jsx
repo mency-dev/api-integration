@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api/api";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FaLocationDot, FaStar } from "react-icons/fa6";
+import { useUser } from "../context/UserContext";
 
 export default function HomePage() {
-    const navigate = useNavigate
-    ();
-  const [params] = useSearchParams();
-  const typeId = params.get("type");
-
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [institutes, setInstitutes] = useState([]);
-
+  const { setUser } = useUser();
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -19,47 +17,55 @@ export default function HomePage() {
       return;
     }
 
-    apiFetch("auth/user", {
+    const id = 56;
+    apiFetch(`institutes/filter?institute_type_id=${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("Unauthorized");
-        return res.json();
-      })
-      .then(() => {
-        return apiFetch(
-          `institutes/filter?institute_type_id=${typeId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      })
       .then((res) => res.json())
       .then((data) => {
-        setInstitutes(data);
+        console.log(data);
+        setInstitutes(data.institutes);
+        setUser(data.user)
         setLoading(false);
-        navigate(" institute-reviews?id=95")
       })
-      .catch(() => {
-        localStorage.removeItem("token");
-        navigate("/home/login");
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
       });
-  }, [typeId]);
+  }, [navigate]);
 
   if (loading) {
     return <h1>Loading...</h1>;
   }
+  function handleClick(id) {
+    navigate(`/home/institute/${id}`);
+  }
+
   return (
     <div>
-      <h1>Institutions</h1>
-      {institutes.map((inst) => (
-        <div key={inst.id}>{inst.name}</div>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        {institutes.map((institute) => (
+          <div
+            key={institute.id}
+            className="rounded-lg p-4 bg-white border-1 border-gray-200 hover:shadow-2xl transition"
+            onClick={() => handleClick(institute.id)}
+          >
+            <h2 className="font-bold text-lg mb-2">{institute.name}</h2>
+            <div className="flex justify-center items-center gap-1">
+              <FaLocationDot className="text-[14px] mt-1" />
+              <p className="text-sm mt-1">{institute.address?.city}</p>
+            </div>
+            <div className="flex justify-center items-center gap-1">
+              <FaStar className="text-[14px] text-yellow-400 mt-1" />
+              <p className="text-sm mt-1">
+                {institute.is_show_review?.Avg_rating}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-
   );
 }
