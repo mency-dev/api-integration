@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { apiFetch } from "../api/api";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Login() {

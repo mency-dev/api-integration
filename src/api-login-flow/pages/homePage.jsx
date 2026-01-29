@@ -1,22 +1,65 @@
-import { useEffect } from "react"
-import { apiFetch } from "../api/api"
+import { useEffect, useState } from "react";
+import { apiFetch } from "../api/api";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-export default function HomePage(){
-    useEffect(()=>{
-        const token = localStorage.getItem("token");
-  if (!token) return;
-        apiFetch("auth/user",{
-            header:{
-                Authorization: `Bearer ${token}`
-            }
-        })
-        .then((response)=>response.json())
-        .then((data)=>console.log(data))
+export default function HomePage() {
+    const navigate = useNavigate
+    ();
+  const [params] = useSearchParams();
+  const typeId = params.get("type");
+
+  const [loading, setLoading] = useState(true);
+  const [institutes, setInstitutes] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/home/login");
+      return;
+    }
+
+    apiFetch("auth/user", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     })
-    return(
-        <>
-        <h1>Home page</h1>
-        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consequatur numquam natus magnam pariatur magni a itaque nesciunt nihil,institutes/filter?institute_type_id=56 institute-reviews?id=95 institutes/52/reviews rating description name voluptatum ullam tenetur et est ratione, recusandae, harum fugit ea fuga ipsam.</p>
-        </>
-    )
+      .then((res) => {
+        if (!res.ok) throw new Error("Unauthorized");
+        return res.json();
+      })
+      .then(() => {
+        return apiFetch(
+          `institutes/filter?institute_type_id=${typeId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        setInstitutes(data);
+        setLoading(false);
+        navigate(" institute-reviews?id=95")
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        navigate("/home/login");
+      });
+  }, [typeId]);
+
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
+  return (
+    <div>
+      <h1>Institutions</h1>
+      {institutes.map((inst) => (
+        <div key={inst.id}>{inst.name}</div>
+      ))}
+    </div>
+
+  );
 }
