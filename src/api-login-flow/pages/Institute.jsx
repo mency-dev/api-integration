@@ -7,14 +7,20 @@ import { useForm } from "react-hook-form";
 import { useUser } from "../context/UserContext";
 
 export default function Institute() {
-  const { register, handleSubmit, getValues, reset } = useForm();
+  const { register, handleSubmit } = useForm();
   const { id } = useParams();
   const [instituteDetails, setInstituteDetails] = useState([]);
   const [activeTab, setActiveTab] = useState("Overview");
   const [openReview, setOpenReview] = useState(false);
-  const [reviews, setReviews] = useState({ data: [] });
-  const { user } = useUser();
+  const [reviews, setReviews] = useState({
+  data: [],
+  current_page: 1,
+  last_page: 1,
+});
 
+const [page, setPage] = useState(1);
+  const { user } = useUser();
+  
   const tabs = [
     "Overview",
     "Courses & fees",
@@ -22,6 +28,20 @@ export default function Institute() {
     "Placement",
     "Review",
   ];
+  
+
+  function fetchReview(pageNumber = 1) {
+    apiFetch(`institute-reviews?id=${id}&page=${pageNumber}&limit=6`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data.data?.reviews);
+        setReviews({
+        data: data.data?.reviews?.data || [],
+        current_page: data.data?.reviews?.current_page || 1,
+        last_page: data.data?.reviews?.last_page || 1,
+      });
+      });
+  }
   useEffect(() => {
     const token = localStorage.getItem("token");
     apiFetch(`institute/details?id=${id}`, {
@@ -33,19 +53,9 @@ export default function Institute() {
       .then((data) => {
         console.log(data);
         setInstituteDetails(data);
-        fetchReview();
+        fetchReview(page);
       });
-  }, []);
-
-  function fetchReview() {
-    apiFetch(`institute-reviews?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data.data?.reviews);
-        setReviews(data.data?.reviews);
-      });
-  }
-
+  }, [page]);
   function onSubmit(data) {
     const { name, rating, review } = data;
     const token = localStorage.getItem("token");
@@ -191,6 +201,28 @@ export default function Institute() {
                       </div>
                     ))}
                   </div>
+                  <div className="flex justify-center gap-3 mt-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Prev
+  </button>
+
+  <span className="px-4 py-2">
+    Page {reviews.current_page} of {reviews.last_page}
+  </span>
+
+  <button
+    disabled={page === reviews.last_page}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+
                 </div>
               </div>
             )}
