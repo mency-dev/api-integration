@@ -1,29 +1,61 @@
 import { useState } from "react";
 
 export default function FruitCount() {
-  const [fruits, setFruits] = useState({});
-function addFruit(name){
-    setFruits(prev=>({
-        ...prev,[name]:(prev[name] || 0)+1
-    }))
-}
+  const [totalFruits, setTotalFruits] = useState({
+    Apple: 10,
+    Banana: 10,
+    Orange: 10,
+  });
+
+  const [selectedFruits, setSelectedFruits] = useState({
+    Apple: 0,
+    Banana: 0,
+    Orange: 0,
+  });
+  const handleClick = (fruit) => {
+    if (totalFruits[fruit] > 0) {
+      setTotalFruits((prev) => ({
+        ...prev,
+        [fruit]: prev[fruit] - 1,
+      }));
+
+      setSelectedFruits((prev) => ({
+        ...prev,
+        [fruit]: prev[fruit] + 1,
+      }));
+    }
+  };
+
+  const totalSelected = Object.values(selectedFruits).reduce(
+    (acc, val) => acc + val,
+    0
+  );
 
   return (
-    <div className="w-100 text-center p-10">
-      <h3>Click a fruit</h3>
-      <div className="flex justify-between">
-      <button onClick={() => addFruit("Apple")}>Apple</button>
-      <button onClick={() => addFruit("Banana")}>Banana</button>
-      <button onClick={() => addFruit("Orange")}>Orange</button>
-      </div>
+    <div style={{ fontFamily: "Arial", lineHeight: "2" }}>
+      <h3>Available Fruits</h3>
       <div>
-        {Object.entries(fruits).map(([fruits,count])=>(
-            <div key={fruits}>
-                {fruits}:{count}
-
-                </div>
+        {Object.keys(totalFruits).map((fruit) => (
+          <button
+            key={fruit}
+            onClick={() => handleClick(fruit)}
+            style={{ marginRight: "10px", padding: "5px 10px" }}
+          >
+            {fruit}: {totalFruits[fruit]}
+          </button>
         ))}
       </div>
+
+      <h3>Selected Fruits</h3>
+      <div>
+        {Object.keys(selectedFruits).map((fruit) => (
+          <div key={fruit}>
+            {fruit}: {selectedFruits[fruit]}
+          </div>
+        ))}
+      </div>
+
+      <h3>Total Fruit: {totalSelected}</h3>
     </div>
   );
 }

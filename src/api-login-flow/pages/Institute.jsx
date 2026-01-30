@@ -5,6 +5,7 @@ import { CiLocationOn } from "react-icons/ci";
 import { FaStar } from "react-icons/fa";
 import { useForm } from "react-hook-form";
 import { useUser } from "../context/UserContext";
+import InstituteReview from "./InstituteReview";
 
 export default function Institute() {
   const { register, handleSubmit } = useForm();
@@ -13,14 +14,14 @@ export default function Institute() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [openReview, setOpenReview] = useState(false);
   const [reviews, setReviews] = useState({
-  data: [],
-  current_page: 1,
-  last_page: 1,
-});
+    data: [],
+    current_page: 1,
+    last_page: 1,
+  });
 
-const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const { user } = useUser();
-  
+
   const tabs = [
     "Overview",
     "Courses & fees",
@@ -28,7 +29,6 @@ const [page, setPage] = useState(1);
     "Placement",
     "Review",
   ];
-  
 
   function fetchReview(pageNumber = 1) {
     apiFetch(`institute-reviews?id=${id}&page=${pageNumber}&limit=6`)
@@ -36,10 +36,10 @@ const [page, setPage] = useState(1);
       .then((data) => {
         console.log(data.data?.reviews);
         setReviews({
-        data: data.data?.reviews?.data || [],
-        current_page: data.data?.reviews?.current_page || 1,
-        last_page: data.data?.reviews?.last_page || 1,
-      });
+          data: data.data?.reviews?.data || [],
+          current_page: data.data?.reviews?.current_page || 1,
+          last_page: data.data?.reviews?.last_page || 1,
+        });
       });
   }
   useEffect(() => {
@@ -139,7 +139,7 @@ const [page, setPage] = useState(1);
                   Write a Review
                 </button>
                 {openReview && (
-                  <div className="fixed inset-0 bg-black/40  flex items-center justify-center z-50">
+                  <div className="fixed inset-0 bg-black/40  flex items-center justify-center z-50 ">
                     <div className="bg-white w-full max-w-lg rounded-lg p-6 relative">
                       <button
                         onClick={() => setOpenReview(false)}
@@ -185,12 +185,12 @@ const [page, setPage] = useState(1);
                     </div>
                   </div>
                 )}
-                <div>
-                  <h3>Reviews</h3>
+                <div className="pt-5">
+                  <h3 className="py-5">Reviews</h3>
                   <div className="grid grid-cols-3 gap-5">
-                    {reviews.data.map((rev) => (
+                    {reviews.data.map((rev,index) => (
                       <div
-                        key={rev.id}
+                        key={rev.id || index}
                         className="rounded-lg p-4 bg-white border-1 border-gray-200 hover:shadow-2xl transition"
                       >
                         <p className="font-bold">
@@ -202,28 +202,28 @@ const [page, setPage] = useState(1);
                     ))}
                   </div>
                   <div className="flex justify-center gap-3 mt-6">
-  <button
-    disabled={page === 1}
-    onClick={() => setPage(page - 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-  >
-    Prev
-  </button>
+                    <button
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                      className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    >
+                      Prev
+                    </button>
 
-  <span className="px-4 py-2">
-    Page {reviews.current_page} of {reviews.last_page}
-  </span>
+                    <span className="px-4 py-2">
+                      Page {reviews.current_page} of {reviews.last_page}
+                    </span>
 
-  <button
-    disabled={page === reviews.last_page}
-    onClick={() => setPage(page + 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-  >
-    Next
-  </button>
-</div>
-
+                    <button
+                      disabled={page === reviews.last_page}
+                      onClick={() => setPage(page + 1)}
+                      className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
+                
               </div>
             )}
           </div>
